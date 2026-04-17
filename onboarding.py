@@ -18,7 +18,9 @@ class Colors:
     BOLD = '\033[1m'
 
 def log(tag, message, color=Colors.OKBLUE):
-    print(f"{color}[{tag}]{Colors.ENDC} {message}")
+    # Using .encode().decode() to handle terminal encoding issues safely
+    safe_message = message.encode('utf-8', 'replace').decode('utf-8')
+    print(f"{color}[{tag}]{Colors.ENDC} {safe_message}")
 
 def fetch_latest_onboardee():
     log("SYNC", f"Checking Typeform {TYPEFORM_FORM_ID} for new responses...")
@@ -29,15 +31,20 @@ def fetch_latest_onboardee():
 def invite_to_slack(email):
     log("SLACK", f"Initiating workspace invite for {email}...")
     time.sleep(1)
-    log("SUCCESS", f"Invite sent to {email}! \u2709\ufe0f", Colors.OKGREEN)
+    log("SUCCESS", f"Invite sent to {email}! [Invite Sent]", Colors.OKGREEN)
 
 def request_access(name):
     log("GMAIL", f"Drafting IT access request for {name}...")
     time.sleep(1)
     log("MAIL", f"To: {IT_SUPPORT_EMAIL}")
-    log("SUCCESS", f"Email sent via Jujubee (Wingman)! \ud83d\ude80", Colors.OKGREEN)
+    log("SUCCESS", f"Email sent via Jujubee (Wingman)! [Rocket]", Colors.OKGREEN)
 
 if __name__ == '__main__':
+    # Ensure output is UTF-8 if supported
+    if sys.stdout.encoding != 'utf-8':
+        import codecs
+        sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'replace')
+
     print(f'\n{Colors.BOLD}{Colors.HEADER}=== wingHR: Onboarding Wingman Demo ==={Colors.ENDC}\n')
     new_hire = fetch_latest_onboardee()
     print('-' * 40)
@@ -45,4 +52,4 @@ if __name__ == '__main__':
     print('-' * 40)
     request_access(new_hire['name'])
     print('-' * 40)
-    print(f'\n{Colors.BOLD}{Colors.OKGREEN}Onboarding automation complete! \ud83c\udfaf{Colors.ENDC}\n')
+    print(f'\n{Colors.BOLD}{Colors.OKGREEN}Onboarding automation complete! [Done]{Colors.ENDC}\n')
